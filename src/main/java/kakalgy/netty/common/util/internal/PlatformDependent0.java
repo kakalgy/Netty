@@ -265,8 +265,36 @@ public class PlatformDependent0 {
 			});
 		}
 	}
-	
+
+	/**
+	 * Unsafe 是否为null 为null返回false 不为null返回true
+	 * 
+	 * @return
+	 */
+	static boolean hasUnsafe() {
+		if (UNSAFE == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param fieldOffset
+	 * @return
+	 */
+	static Object getObject(Object object, long fieldOffset) {
+		return UNSAFE.getObject(object, fieldOffset);
+	}
+
+	/**
+	 * 
+	 * @param field
+	 * @return
+	 */
 	static long objectFieldOffset(Field field) {
-        return UNSAFE.objectFieldOffset(field);
-    }
+		return UNSAFE.objectFieldOffset(field);
+	}
 }
