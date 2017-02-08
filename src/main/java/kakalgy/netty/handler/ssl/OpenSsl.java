@@ -1,5 +1,6 @@
 package kakalgy.netty.handler.ssl;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -17,7 +18,8 @@ import kakalgy.netty.common.util.internal.logging.InternalLoggerFactory;
  */
 public final class OpenSsl {
 
-	private static final InternalLogger logger = InternalLoggerFactory.getInstance(OpenSsl.class);
+	private static final InternalLogger logger = InternalLoggerFactory
+			.getInstance(OpenSsl.class);
 
 	private static final String LINUX = "linux";
 	private static final String UNKNOWN = "unknown";
@@ -46,11 +48,29 @@ public final class OpenSsl {
 	static final String PROTOCOL_TLS_V1_1 = "TLSv1.1";
 	static final String PROTOCOL_TLS_V1_2 = "TLSv1.2";
 
-	private static final String[] SUPPORTED_PROTOCOLS = { PROTOCOL_SSL_V2_HELLO, PROTOCOL_SSL_V2, PROTOCOL_SSL_V3, PROTOCOL_TLS_V1, PROTOCOL_TLS_V1_1, PROTOCOL_TLS_V1_2 };
+	private static final String[] SUPPORTED_PROTOCOLS = {
+			PROTOCOL_SSL_V2_HELLO, PROTOCOL_SSL_V2, PROTOCOL_SSL_V3,
+			PROTOCOL_TLS_V1, PROTOCOL_TLS_V1_1, PROTOCOL_TLS_V1_2 };
 
-	static final Set<String> SUPPORTED_PROTOCOLS_SET = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList(SUPPORTED_PROTOCOLS)));
+	static final Set<String> SUPPORTED_PROTOCOLS_SET = Collections
+			.unmodifiableSet(new HashSet<String>(Arrays
+					.asList(SUPPORTED_PROTOCOLS)));
 
 	static {
+		Throwable cause = null;
+
+		// Test if netty-tcnative is in the classpath first.
+		// 测试netty-tcnative是否在classpath中
+		try {
+			Class.forName("org.apache.tomcat.jni.SSL", false,
+					OpenSsl.class.getClassLoader());
+		} catch (ClassNotFoundException e) {
+			// TODO: handle exception
+			cause = e;
+			logger.debug("netty-tcnative not in the classpath; "
+					+ .class.getSimpleName()
+					+ " will be unavailable.");
+		}
 
 	}
 }
