@@ -11,21 +11,35 @@ import kakalgy.netty.common.util.internal.logging.InternalLoggerFactory;
 
 /**
  * This static factory should be used to load {@link ResourceLeakDetector}s as
- * needed
+ * needed.
+ * 
+ * </br>
+ * </br>
+ * 
+ * 检测资源是否泄漏的类
  */
 public abstract class ResourceLeakDetectorFactory {
 
-	private static final InternalLogger logger = InternalLoggerFactory
-			.getInstance(ResourceLeakDetectorFactory.class);
+	private static final InternalLogger logger = InternalLoggerFactory.getInstance(ResourceLeakDetectorFactory.class);
 
 	private static volatile ResourceLeakDetectorFactory factoryInstance = new DefaultResourceLeakDetectorFactory();
 
 	/**
-	 * 默认的配置生成的ResourceLeakDetectorFactory类</br></br> Default implementation
-	 * that loads custom leak detector via system property
+	 * Get the singleton instance of this factory class.(返回单例实例)
+	 *
+	 * @return - the current {@link ResourceLeakDetectorFactory}
 	 */
-	private static final class DefaultResourceLeakDetectorFactory extends
-			ResourceLeakDetectorFactory {
+	public static ResourceLeakDetectorFactory instance() {
+		return factoryInstance;
+	}
+
+	/**
+	 * 默认的配置生成的ResourceLeakDetectorFactory类</br>
+	 * </br>
+	 * Default implementation that loads custom leak detector via system
+	 * property
+	 */
+	private static final class DefaultResourceLeakDetectorFactory extends ResourceLeakDetectorFactory {
 		private final Constructor<?> customClassConstructor;
 
 		/**
@@ -35,27 +49,27 @@ public abstract class ResourceLeakDetectorFactory {
 			// TODO Auto-generated constructor stub
 			String customLeakDetector;
 			try {
-				customLeakDetector = AccessController
-						.doPrivileged(new PrivilegedAction<String>() {
-							public String run() {
-								// TODO Auto-generated method stub
-								return SystemPropertyUtil
-										.getJavaSystemPropertyString("io.netty.customResourceLeakDetector");
-							}
-						});
+				customLeakDetector = AccessController.doPrivileged(new PrivilegedAction<String>() {
+					public String run() {
+						// TODO Auto-generated method stub
+						return SystemPropertyUtil.getJavaSystemPropertyString("io.netty.customResourceLeakDetector");
+					}
+				});
 			} catch (Throwable cause) {
 				// TODO: handle exception
-				logger.error(
-						"Could not access System property: io.netty.customResourceLeakDetector ",
-						cause);
+				logger.error("Could not access System property: io.netty.customResourceLeakDetector ", cause);
 				customLeakDetector = null;
 			}
 
-			customClassConstructor = customLeakDetector == null ? null
-					: customClassConstructor(customLeakDetector);
+			customClassConstructor = customLeakDetector == null ? null : customClassConstructorMethod(customLeakDetector);
 		}
 
-		private static Constructor<?> customClassConstructor(
+		/**
+		 * 
+		 * @param customLeakDetector
+		 * @return
+		 */
+		private static Constructor<?> customClassConstructorMethod(
 				String customLeakDetector) {
 			try {
 				final Class<?> detectorClass = Class.forName(
@@ -71,6 +85,8 @@ public abstract class ResourceLeakDetectorFactory {
 			}
 			return null;
 		}
+		
+		
 	}
 
 }
