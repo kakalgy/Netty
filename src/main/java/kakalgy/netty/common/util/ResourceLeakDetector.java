@@ -1,6 +1,10 @@
 package kakalgy.netty.common.util;
 
+import java.lang.ref.PhantomReference;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.EnumSet;
+import java.util.concurrent.ConcurrentMap;
 
 import kakalgy.netty.common.util.internal.SystemPropertyUtil;
 import kakalgy.netty.common.util.internal.logging.InternalLogger;
@@ -126,5 +130,70 @@ public class ResourceLeakDetector<T> {
 	@Deprecated
 	public static void setEnabled(boolean enabled) {
 		setLevel(enabled ? Level.SIMPLE : Level.DISABLED);
+	}
+
+	// private final ConcurrentMap<DefaultRes, V>
+	@SuppressWarnings("deprecation")
+	private final class DefaultResourceLeak extends PhantomReference<Object> implements ResourceLeakTracker<T>, ResourceLeak {
+		private final String creationRecord;
+		private final Deque<String> lastRecords = new ArrayDeque<String>();
+		private final int trackedHash;
+		private int removedRecords;
+
+		DefaultResourceLeak(Object referent) {
+			// TODO Auto-generated constructor stub
+			super(referent, );
+		}
+
+		public boolean close() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public void record() {
+			// TODO Auto-generated method stub
+
+		}
+
+		public void record(Object hint) {
+			// TODO Auto-generated method stub
+
+		}
+
+		public boolean close(T trackedObject) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	}
+
+	/**
+	 * 内部类
+	 * 
+	 * @author Administrator
+	 *
+	 */
+	private static final class LeakEntry {
+		static final LeakEntry INSTANCE = new LeakEntry();
+		private static final int HASH = System.identityHashCode(INSTANCE);
+
+		private LeakEntry() {
+		}
+
+		/**
+		 * hashCode根据内容来确定值
+		 * 
+		 * identityHashCode根据内存地址来确定值
+		 */
+		@Override
+		public int hashCode() {
+			// TODO Auto-generated method stub
+			return HASH;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			// TODO Auto-generated method stub
+			return obj == this;
+		}
 	}
 }

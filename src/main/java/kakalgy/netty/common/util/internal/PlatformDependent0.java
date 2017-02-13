@@ -26,8 +26,17 @@ public class PlatformDependent0 {
 
 	static final Unsafe UNSAFE;
 
+	/**
+	 * 
+	 */
 	private static final long ADDRESS_FIELD_OFFSET;
+	/**
+	 * 
+	 */
 	private static final long BYTE_ARRAY_BASE_OFFSET;
+	/**
+	 * 
+	 */
 	private static final Constructor<?> DIRECT_BUFFER_CONSTRUCTOR;
 
 	// constants borrowed from murmur3

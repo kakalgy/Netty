@@ -194,6 +194,10 @@ public final class PlatformDependent {
 		return IS_WINDOWS;
 	}
 
+	/**
+	 * 是否显式的NoUnsafe
+	 * @return
+	 */
 	static boolean isExplicitNoUnsafe() {
 		return IS_EXPLICIT_NO_UNSAFE;
 	}
