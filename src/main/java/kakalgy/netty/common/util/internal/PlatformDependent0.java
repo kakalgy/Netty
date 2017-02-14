@@ -51,6 +51,9 @@ public class PlatformDependent0 {
 	 */
 	private static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
 
+	/**
+	 * 
+	 */
 	private static final boolean UNALIGNED;
 
 	/**
@@ -245,7 +248,7 @@ public class PlatformDependent0 {
 				unaligned = (Boolean) maybeUnaligned;
 				logger.debug("java.nio.Bits.unaligned: available, {}", unaligned);
 			} else {
-				String arch = SystemPropertyUtil.get("os.arch", "");
+				String arch = SystemPropertyUtil.getJavaSystemPropertyString("os.arch", "");
 				// noinspection DynamicRegexReplaceableByCompiledPattern
 				unaligned = arch.matches("^(i[3-6]86|x86(_64)?|x64|amd64)$");
 				Throwable t = (Throwable) maybeUnaligned;
@@ -305,5 +308,35 @@ public class PlatformDependent0 {
 	 */
 	static long objectFieldOffset(Field field) {
 		return UNSAFE.objectFieldOffset(field);
+	}
+
+	static boolean isUnaligned() {
+		return UNALIGNED;
+	}
+
+	static boolean unalignedAccess() {
+		return UNALIGNED;
+	}
+
+	static void throwException(Throwable cause) {
+		// JVM has been observed to crash when passing a null argument. See
+		// https://github.com/netty/netty/issues/4131.
+		UNSAFE.throwException(checkNotNull(cause, "cause"));
+	}
+	
+	static boolean hasDirectBufferNoCleanerConstructor(){
+		return DIRECT_BUFFER_CONSTRUCTOR != null;
+	}
+	
+	static ByteBuffer reallocateDirectNoCleaner(ByteBuffer buffer, int capacity){
+		return newDirectBuffer()
+	}
+	
+	static ByteBuffer allocateDirectNoCleaner(int capacity){
+		
+	}
+	
+	static ByteBuffer newDirectBuffer(long address, int capacity){
+		ObjectUtil.c
 	}
 }
