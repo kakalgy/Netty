@@ -323,20 +323,44 @@ public class PlatformDependent0 {
 		// https://github.com/netty/netty/issues/4131.
 		UNSAFE.throwException(checkNotNull(cause, "cause"));
 	}
-	
-	static boolean hasDirectBufferNoCleanerConstructor(){
+
+	static boolean hasDirectBufferNoCleanerConstructor() {
 		return DIRECT_BUFFER_CONSTRUCTOR != null;
 	}
-	
-	static ByteBuffer reallocateDirectNoCleaner(ByteBuffer buffer, int capacity){
-		return newDirectBuffer()
+
+	static ByteBuffer reallocateDirectNoCleaner(ByteBuffer buffer, int capacity) {
+		return newDirectBuffer(UNSAFE.reallocateMemory(di, arg1));
 	}
-	
-	static ByteBuffer allocateDirectNoCleaner(int capacity){
-		
+
+	static ByteBuffer allocateDirectNoCleaner(int capacity) {
+
 	}
-	
-	static ByteBuffer newDirectBuffer(long address, int capacity){
-		ObjectUtil.c
+
+	/**
+	 * 返回直接内存的ByteBuffer
+	 * 
+	 * @param address
+	 * @param capacity
+	 * @return
+	 */
+	static ByteBuffer newDirectBuffer(long address, int capacity) {
+		ObjectUtil.checkPositiveOrzero(address, "address");
+		ObjectUtil.checkPositiveOrZero(capacity, "capacity");
+
+		try {
+			return (ByteBuffer) DIRECT_BUFFER_CONSTRUCTOR.newInstance(address, capacity);
+		} catch (Throwable cause) {
+			// TODO: handle exception
+			if (cause instanceof Error) {
+				throw (Error) cause;
+			}
+			throw new Error(cause);
+		}
+	}
+
+	static void freeDirectBuffer(ByteBuffer buffer) {
+		// Delegate to other class to not break on android
+		// See https://github.com/netty/netty/issues/2604
+		Cleaner0.freeDirectBuffer(buffer);
 	}
 }

@@ -82,6 +82,7 @@ public class Cleaner0 {
 	}
 
 	/**
+	 * 释放直接缓冲区
 	 * 
 	 * @param buffer
 	 */
