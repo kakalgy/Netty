@@ -1,6 +1,5 @@
 package kakalgy.netty.handler.ssl;
 
-import handler.src.main.java.io.netty.handler.ssl.ReferenceCounted;
 import kakalgy.netty.common.util.internal.UnstableApi;
 
 /**

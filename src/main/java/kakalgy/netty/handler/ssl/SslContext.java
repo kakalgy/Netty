@@ -3,8 +3,6 @@ package kakalgy.netty.handler.ssl;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 
-import handler.src.main.java.io.netty.handler.ssl.SslProvider;
-
 public abstract class SslContext {
 
 	static final CertificateFactory X509_CERT_FACTORY;

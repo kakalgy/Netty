@@ -24,16 +24,25 @@ import kakalgy.netty.common.util.internal.logging.InternalLoggerFactory;
 
 /**
  * Allows to free direct {@link ByteBuffer} by using Cleaner. This is
- * encapsulated in an extra class to be able to use {@link PlatformDependent0}
- * on Android without problems.
+ * encapsulated(囊括) in an extra class to be able to use
+ * {@link PlatformDependent0} on Android without problems.
  *
  * For more details see
  * <a href="https://github.com/netty/netty/issues/2604">#2604</a>.
  */
 public class Cleaner0 {
 
+	/**
+	 * 
+	 */
 	private static final long CLEANER_FIELD_OFFSET;
+	/**
+	 * 
+	 */
 	private static final Method CLEAN_METHOD;
+	/**
+	 * 
+	 */
 	private static final boolean CLEANER_IS_RUNNABLE;
 
 	private static final InternalLogger logger = InternalLoggerFactory.getInstance(Cleaner0.class);
@@ -100,6 +109,8 @@ public class Cleaner0 {
 				if (CLEANER_IS_RUNNABLE) {
 					((Runnable) cleaner).run();
 				} else {
+					// Method.invoke();
+					// Method是类Class的一个Method方法,invoke里面是Class.newInstance
 					CLEAN_METHOD.invoke(cleaner);
 				}
 			}

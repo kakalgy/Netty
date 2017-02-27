@@ -13,10 +13,13 @@ import kakalgy.netty.common.util.internal.logging.InternalLogger;
 import kakalgy.netty.common.util.internal.logging.InternalLoggerFactory;
 import sun.misc.Unsafe;
 
+import static kakalgy.netty.common.util.internal.ObjectUtil.checkNotNull;
+
 /**
  * The {@link PlatformDependent} operations which requires access to
  * {@code sun.misc.*}.
  */
+@SuppressWarnings("restriction")
 public class PlatformDependent0 {
 	private static final InternalLogger logger = InternalLoggerFactory.getInstance(PlatformDependent0.class);
 
@@ -329,11 +332,12 @@ public class PlatformDependent0 {
 	}
 
 	static ByteBuffer reallocateDirectNoCleaner(ByteBuffer buffer, int capacity) {
-		return newDirectBuffer(UNSAFE.reallocateMemory(di, arg1));
+		return newDirectBuffer(UNSAFE.reallocateMemory(directBufferAddress(buffer), capacity), capacity);
 	}
 
+	@SuppressWarnings("restriction")
 	static ByteBuffer allocateDirectNoCleaner(int capacity) {
-
+		return newDirectBuffer(UNSAFE.allocateMemory(capacity), capacity);
 	}
 
 	/**
@@ -362,5 +366,332 @@ public class PlatformDependent0 {
 		// Delegate to other class to not break on android
 		// See https://github.com/netty/netty/issues/2604
 		Cleaner0.freeDirectBuffer(buffer);
+	}
+
+	static long directBufferAddress(ByteBuffer buffer) {
+		return getLong(buffer, ADDRESS_FIELD_OFFSET);
+	}
+
+	static long byteArrayBaseOffset() {
+		return BYTE_ARRAY_BASE_OFFSET;
+	}
+
+	static Object getObjectVolatile(Object object, long fieldOffset) {
+		return UNSAFE.getObjectVolatile(object, fieldOffset);
+	}
+
+	/**
+	 * 
+	 * @param object
+	 * @param address
+	 * @param value
+	 */
+	static void putOrderedObject(Object object, long address, Object value) {
+		UNSAFE.putOrderedObject(object, address, value);
+	}
+
+	static int getInt(Object object, long fieldOffset) {
+		return UNSAFE.getInt(object, fieldOffset);
+	}
+
+	static int getInt(long address) {
+		return UNSAFE.getInt(address);
+	}
+
+	static int getInt(byte[] data, int index) {
+		return UNSAFE.getInt(data, BYTE_ARRAY_BASE_OFFSET + index);
+	}
+
+	static void putInt(long address, int value) {
+		UNSAFE.putInt(address, value);
+	}
+
+	static void putInt(byte[] data, int index, int value) {
+		UNSAFE.putInt(data, BYTE_ARRAY_BASE_OFFSET + index, value);
+	}
+
+	private static long getLong(Object object, long fieldOffset) {
+		return UNSAFE.getLong(object, fieldOffset);
+	}
+
+	static long getLong(long address) {
+		return UNSAFE.getLong(address);
+	}
+
+	static long getLong(byte[] data, int index) {
+		return UNSAFE.getLong(data, BYTE_ARRAY_BASE_OFFSET + index);
+	}
+
+	static void putLong(long address, long value) {
+		UNSAFE.putLong(address, value);
+	}
+
+	static void putLong(byte[] data, int index, int value) {
+		UNSAFE.putLong(data, BYTE_ARRAY_BASE_OFFSET + index, value);
+	}
+
+	static byte getByte(long address) {
+		return UNSAFE.getByte(address);
+	}
+
+	static byte getByte(byte[] data, int index) {
+		return UNSAFE.getByte(data, BYTE_ARRAY_BASE_OFFSET + index);
+	}
+
+	@SuppressWarnings("restriction")
+	static void putByte(long address, byte value) {
+		UNSAFE.putByte(address, value);
+	}
+
+	static void putByte(byte[] data, int index, byte value) {
+		UNSAFE.putByte(data, BYTE_ARRAY_BASE_OFFSET + index, value);
+	}
+
+	static short getShort(long address) {
+		return UNSAFE.getShort(address);
+	}
+
+	static short getShort(byte[] data, int index) {
+		return UNSAFE.getShort(data, BYTE_ARRAY_BASE_OFFSET + index);
+	}
+
+	static void putShort(long address, short value) {
+		UNSAFE.putShort(address, value);
+	}
+
+	static void putShort(byte[] data, int index, short value) {
+		UNSAFE.putShort(data, BYTE_ARRAY_BASE_OFFSET + index, value);
+	}
+
+	/**
+	 * 将长度为length的内存地址从srcAddress复制到destAddr
+	 * 
+	 * @param srcAddr
+	 * @param destAddr
+	 * @param length
+	 */
+	static void copyMemory(long srcAddr, long destAddr, long length) {
+		// UNSAFE.copyMemory(srcAddr, dstAddr, length);
+		while (length > 0) {
+			long size = Math.min(length, UNSAFE_COPY_THRESHOLD);
+			UNSAFE.copyMemory(srcAddr, destAddr, size);
+			length -= size;
+			srcAddr += size;
+			destAddr += size;
+		}
+	}
+
+	/**
+	 * 
+	 * @param src
+	 * @param srcOffset
+	 * @param dest
+	 * @param destOffset
+	 * @param length
+	 */
+	@SuppressWarnings("restriction")
+	static void copyMemory(Object src, long srcOffset, Object dest, long destOffset, long length) {
+		while (length > 0) {
+			long size = Math.min(length, UNSAFE_COPY_THRESHOLD);
+			UNSAFE.copyMemory(src, srcOffset, dest, destOffset, size);
+			length -= size;
+			srcOffset += size;
+			destOffset += size;
+		}
+	}
+
+	/**
+	 * 
+	 * @param address
+	 * @param bytes
+	 * @param value
+	 */
+	@SuppressWarnings("restriction")
+	static void setMemory(long address, long bytes, byte value) {
+		UNSAFE.setMemory(address, bytes, value);
+	}
+
+	/**
+	 * 
+	 * @param o
+	 * @param offset
+	 * @param bytes
+	 * @param value
+	 */
+	@SuppressWarnings("restriction")
+	static void setMemory(Object o, long offset, long bytes, byte value) {
+		UNSAFE.setMemory(o, offset, bytes, value);
+	}
+
+	/**
+	 * 
+	 * @param bytes1
+	 * @param startPos1
+	 * @param bytes2
+	 * @param startPos2
+	 * @param length
+	 * @return
+	 */
+	@SuppressWarnings("restriction")
+	static boolean equals(byte[] bytes1, int startPos1, byte[] bytes2, int startPos2, int length) {
+		if (length == 0) {
+			return true;
+		}
+
+		final long baseOffset1 = BYTE_ARRAY_BASE_OFFSET + startPos1;
+		final long baseOffset2 = BYTE_ARRAY_BASE_OFFSET + startPos2;
+		// 按位与运算符"&"是双目运算符。其功能是参与运算的两数各对应的二进位相与。只有对应的两个二进位均为1时，结果位才为1，否则为0。参与运算的数以补码方式出现。
+		// 例如：9&5可写算式如下：
+		// 00001001 (9的二进制补码)
+		// &00000101 (5的二进制补码)
+		// 00000001 (1的二进制补码)
+		// 可见9&5=1。
+		// 按位与运算通常用来对某些位清0或保留某些位。例如把a 的高八位清 0 ，保留低八位，可作a&255运算（255
+		// 的二进制数为0000000011111111）。
+		int remainingBytes = length & 7;// 保留低三位
+		final long end = baseOffset1 + remainingBytes;
+
+		for (long i = baseOffset1 - 8 + length, j = baseOffset2 - 8 + length; i >= end; i -= 8, j -= 8) {
+			if (UNSAFE.getLong(bytes1, i) != UNSAFE.getLong(bytes2, j)) {
+				return false;
+			}
+		}
+
+		if (remainingBytes >= 4) {
+			remainingBytes -= 4;
+			if (UNSAFE.getInt(bytes1, baseOffset1 + remainingBytes) != UNSAFE.getInt(bytes2, baseOffset2 + remainingBytes)) {
+				return false;
+			}
+		}
+
+		if (remainingBytes >= 2) {
+			return UNSAFE.getChar(bytes1, baseOffset1) == UNSAFE.getChar(bytes2, baseOffset2) && (remainingBytes == 2 || bytes1[startPos1 + 2] == bytes2[startPos2 + 2]);
+		}
+		return bytes1[startPos1] == bytes2[startPos2];
+	}
+
+	static int equalsConstantTime(byte[] bytes1, int startPos1, byte[] bytes2, int startPos2, int length) {
+		long result = 0;
+		final long baseOffset1 = BYTE_ARRAY_BASE_OFFSET + startPos1;
+		final long baseOffset2 = BYTE_ARRAY_BASE_OFFSET + startPos2;
+		final int remainingBytes = length & 7;
+		final long end = baseOffset1 + remainingBytes;
+		for (long i = baseOffset1 - 8 + length, j = baseOffset2 - 8 + length; i >= end; i -= 8, j -= 8) {
+			result |= UNSAFE.getLong(bytes1, i) ^ UNSAFE.getLong(bytes2, j);
+		}
+		switch (remainingBytes) {
+		case 7:
+			return ConstantTimeUtils.equalsConstantTime(result | (UNSAFE.getInt(bytes1, baseOffset1 + 3) ^ UNSAFE.getInt(bytes2, baseOffset2 + 3))
+					| (UNSAFE.getChar(bytes1, baseOffset1 + 1) ^ UNSAFE.getChar(bytes2, baseOffset2 + 1)) | (UNSAFE.getByte(bytes1, baseOffset1) ^ UNSAFE.getByte(bytes2, baseOffset2)), 0);
+		case 6:
+			return ConstantTimeUtils.equalsConstantTime(
+					result | (UNSAFE.getInt(bytes1, baseOffset1 + 2) ^ UNSAFE.getInt(bytes2, baseOffset2 + 2)) | (UNSAFE.getChar(bytes1, baseOffset1) ^ UNSAFE.getChar(bytes2, baseOffset2)), 0);
+		case 5:
+			return ConstantTimeUtils.equalsConstantTime(
+					result | (UNSAFE.getInt(bytes1, baseOffset1 + 1) ^ UNSAFE.getInt(bytes2, baseOffset2 + 1)) | (UNSAFE.getByte(bytes1, baseOffset1) ^ UNSAFE.getByte(bytes2, baseOffset2)), 0);
+		case 4:
+			return ConstantTimeUtils.equalsConstantTime(result | (UNSAFE.getInt(bytes1, baseOffset1) ^ UNSAFE.getInt(bytes2, baseOffset2)), 0);
+		case 3:
+			return ConstantTimeUtils.equalsConstantTime(
+					result | (UNSAFE.getChar(bytes1, baseOffset1 + 1) ^ UNSAFE.getChar(bytes2, baseOffset2 + 1)) | (UNSAFE.getByte(bytes1, baseOffset1) ^ UNSAFE.getByte(bytes2, baseOffset2)), 0);
+		case 2:
+			return ConstantTimeUtils.equalsConstantTime(result | (UNSAFE.getChar(bytes1, baseOffset1) ^ UNSAFE.getChar(bytes2, baseOffset2)), 0);
+		case 1:
+			return ConstantTimeUtils.equalsConstantTime(result | (UNSAFE.getByte(bytes1, baseOffset1) ^ UNSAFE.getByte(bytes2, baseOffset2)), 0);
+		default:
+			return ConstantTimeUtils.equalsConstantTime(result, 0);
+		}
+	}
+
+	static int hashCodeAscii(byte[] bytes, int startPos, int length) {
+		int hash = HASH_CODE_ASCII_SEED;
+		final long baseOffset = BYTE_ARRAY_BASE_OFFSET + startPos;
+		final int remainingBytes = length & 7;
+		final long end = baseOffset + remainingBytes;
+		for (long i = baseOffset - 8 + length; i >= end; i -= 8) {
+			hash = hashCodeAsciiCompute(UNSAFE.getLong(bytes, i), hash);
+		}
+		switch (remainingBytes) {
+		case 7:
+			return ((hash * HASH_CODE_C1 + hashCodeAsciiSanitize(UNSAFE.getByte(bytes, baseOffset))) * HASH_CODE_C2 + hashCodeAsciiSanitize(UNSAFE.getShort(bytes, baseOffset + 1))) * HASH_CODE_C1
+					+ hashCodeAsciiSanitize(UNSAFE.getInt(bytes, baseOffset + 3));
+		case 6:
+			return (hash * HASH_CODE_C1 + hashCodeAsciiSanitize(UNSAFE.getShort(bytes, baseOffset))) * HASH_CODE_C2 + hashCodeAsciiSanitize(UNSAFE.getInt(bytes, baseOffset + 2));
+		case 5:
+			return (hash * HASH_CODE_C1 + hashCodeAsciiSanitize(UNSAFE.getByte(bytes, baseOffset))) * HASH_CODE_C2 + hashCodeAsciiSanitize(UNSAFE.getInt(bytes, baseOffset + 1));
+		case 4:
+			return hash * HASH_CODE_C1 + hashCodeAsciiSanitize(UNSAFE.getInt(bytes, baseOffset));
+		case 3:
+			return (hash * HASH_CODE_C1 + hashCodeAsciiSanitize(UNSAFE.getByte(bytes, baseOffset))) * HASH_CODE_C2 + hashCodeAsciiSanitize(UNSAFE.getShort(bytes, baseOffset + 1));
+		case 2:
+			return hash * HASH_CODE_C1 + hashCodeAsciiSanitize(UNSAFE.getShort(bytes, baseOffset));
+		case 1:
+			return hash * HASH_CODE_C1 + hashCodeAsciiSanitize(UNSAFE.getByte(bytes, baseOffset));
+		default:
+			return hash;
+		}
+	}
+
+	static int hashCodeAsciiCompute(long value, int hash) {
+		// masking with 0x1f reduces the number of overall bits that impact the
+		// hash code but makes the hash
+		// code the same regardless of character case (upper case or lower case
+		// hash is the same).
+		return hash * HASH_CODE_C1 +
+		// Low order int
+				hashCodeAsciiSanitize((int) value) * HASH_CODE_C2 +
+				// High order int
+				(int) ((value & 0x1f1f1f1f00000000L) >>> 32);
+	}
+
+	static int hashCodeAsciiSanitize(int value) {
+		return value & 0x1f1f1f1f;
+	}
+
+	static int hashCodeAsciiSanitize(short value) {
+		return value & 0x1f1f;
+	}
+
+	static int hashCodeAsciiSanitize(byte value) {
+		return value & 0x1f;
+	}
+
+	static ClassLoader getClassLoader(final Class<?> clazz) {
+		if (System.getSecurityManager() == null) {
+			return clazz.getClassLoader();
+		} else {
+			return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+				public ClassLoader run() {
+					return clazz.getClassLoader();
+				}
+			});
+		}
+	}
+
+	static ClassLoader getContextClassLoader() {
+		if (System.getSecurityManager() == null) {
+			return Thread.currentThread().getContextClassLoader();
+		} else {
+			return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+				public ClassLoader run() {
+					return Thread.currentThread().getContextClassLoader();
+				}
+			});
+		}
+	}
+
+	@SuppressWarnings("restriction")
+	static int addressSize() {
+		return UNSAFE.addressSize();
+	}
+
+	@SuppressWarnings("restriction")
+	static long allocateMemory(long size) {
+		return UNSAFE.allocateMemory(size);
+	}
+
+	@SuppressWarnings("restriction")
+	static void freeMemory(long address) {
+		UNSAFE.freeMemory(address);
 	}
 }

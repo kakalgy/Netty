@@ -3,6 +3,8 @@ package kakalgy.netty.example.worldclock;
 import java.util.Arrays;
 import java.util.List;
 
+import kakalgy.netty.handler.ssl.SslContext;
+
 /**
  * 
  * Sends a list of continent/city pairs to a {@link WorldClockServer} to get the
