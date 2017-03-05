@@ -85,31 +85,17 @@
 			<artifactId>easymock</artifactId>
 			<version>3.4</version>
 		</dependency>
-
-
-		<!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-jni -->
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jni</artifactId>
-			<version>9.0.0.M17</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/tomcat/tomcat-apr -->
-		<dependency>
-			<groupId>tomcat</groupId>
-			<artifactId>tomcat-apr</artifactId>
-			<version>5.5.23</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.netty/netty-tcnative -->
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-tcnative</artifactId>
-			<version>2.0.0.Beta6</version>
+			<version>1.1.33.Fork26</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+		<!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-compress</artifactId>
-			<version>1.13</version>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.54</version>
 		</dependency>
 
 	</dependencies>

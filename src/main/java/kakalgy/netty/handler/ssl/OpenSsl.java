@@ -1,5 +1,6 @@
 package kakalgy.netty.handler.ssl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -8,10 +9,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Set;
 
+import org.apache.tomcat.Apr;
 import org.apache.tomcat.jni.Library;
+import org.apache.tomcat.jni.Pool;
 import org.apache.tomcat.jni.SSL;
+import org.apache.tomcat.jni.SSLContext;
 
 import handler.src.main.java.io.netty.handler.ssl.OpenSslEngine;
 import kakalgy.netty.common.util.internal.NativeLibraryLoader;
@@ -106,8 +111,54 @@ public final class OpenSsl {
 
 		}
 
+		// 如果之前的步骤没有出现异常 并且Tcnative不为netty-tcnative
 		if (cause == null && !isNettyTcnative()) {
+			logger.debug("incompatible tcnative in the classpath; " + OpenSslEngine.class.getSimpleName() + " will be unavailable.");
+			cause = new ClassNotFoundException("incompatible tcnative in the classpath");
+		}
 
+		UNAVAILABILITY_CAUSE = cause;
+
+		// 如果之前的步骤没有出现异常
+		if (cause == null) {
+			final Set<String> availableOpenSslCipherSuites = new LinkedHashSet<String>(128);
+			boolean supportsKeyManagerFactory = false;
+			boolean useKeyManagerFactory = false;
+			final long aprPool = Pool.create(0);
+			try {
+				final long sslCtx = SSLContext.make(aprPool, SSL.SSL_PROTOCOL_ALL, SSL.SSL_MODE_SERVER);
+				long privateKeyBio = 0;
+				long certBio = 0;
+				try {
+					SSLContext.setOptions(sslCtx, SSL.SSL_OP_ALL);
+					SSLContext.setCipherSuite(sslCtx, "ALL");
+					final long ssl = SSL.newSSL(sslCtx, true);
+					try {
+						for (String s : SSL.getCiphers(ssl)) {
+							// Filter out bad input.
+							if (s == null || s.length() == 0 || availableOpenSslCipherSuites.contains(s)) {
+								continue;
+							}
+							availableOpenSslCipherSuites.add(s);
+						}
+						try {
+selfs
+						} catch (Throwable t) {
+							// TODO: handle exception
+							logger.debug("KeyManagerFactory not supported.");
+						}
+					} finally {
+
+					}
+				} finally {
+
+				}
+
+			} catch (Exception e) {
+
+			} finally {
+
+			}
 		}
 
 	}
@@ -254,8 +305,9 @@ public final class OpenSsl {
 	}
 
 	/**
+	 * 确认Tcnative是否为netty-tcnative
 	 * 
-	 * @return
+	 * @return 如果是netty-tcnative，则返回True,否则返回FALSE
 	 */
 	private static boolean isNettyTcnative() {
 		return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
@@ -263,14 +315,25 @@ public final class OpenSsl {
 				// TODO Auto-generated method stub
 				InputStream is = null;
 				try {
-					is = Apr
+					is = Apr.class.getResourceAsStream("/org/apache/tomcat/apr.properties");
+					Properties props = new Properties();
+					props.load(is);
+					String info = props.getProperty("tcn.info");
+					return info != null && info.startsWith("netty-tcnative");
 				} catch (Throwable ignore) {
 					// TODO: handle exception
 					return false;
-				}finally {
-					
+				} finally {
+					if (is != null) {
+						try {
+							is.close();
+						} catch (IOException e) {
+							// TODO: handle exception
+							// ignore
+						}
+					}
 				}
-				
+
 			}
 		});
 	}
