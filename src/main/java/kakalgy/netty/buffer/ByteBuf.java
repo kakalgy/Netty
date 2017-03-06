@@ -245,5 +245,7 @@ public abstract class ByteBuf implements ReferenceCounted, Comparable<ByteBuf>{
      * {@link IllegalArgumentException}.
      */
 	public abstract int maxCapacity();
+	
+	public abstract 
 
 }
